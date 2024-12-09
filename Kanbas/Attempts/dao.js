@@ -1,8 +1,21 @@
 import model from "./model.js";
 import * as questionsDao from "../Questions/dao.js";
 
-export function createAttempt(attempt) {
-    return model.create(attempt);
+export async function createAttempt(attempt) {
+    // return model.create(attempt);
+    const existingAttempt = await model.findOne({ user: attempt.user, quiz: attempt.quiz });
+
+    if (existingAttempt) {
+        // 更新已有的 Attempt
+        existingAttempt.answers = attempt.answers;
+        existingAttempt.score = attempt.score;
+        existingAttempt.attemptCount = existingAttempt.attemptCount + 1;
+        await existingAttempt.save();
+        return existingAttempt;
+    }
+
+    const newAttempt = await model.create(attempt);
+    return newAttempt;
 }
 
 export function removeAttempt(attemptId) {
@@ -65,6 +78,16 @@ export async function calculateScore(attemptId) {
         return attempt;
     } catch (error) {
         console.error("Error calculating score:", error.message);
+        throw error;
+    }
+}
+
+export async function getLastAttemptForQuiz(userId, quizId) {
+    try {
+        const lastAttempt = await model.findOne({ user: userId, quiz: quizId });
+        return lastAttempt;
+    } catch (error) {
+        console.error("Error fetching last attempt:", error.message);
         throw error;
     }
 }

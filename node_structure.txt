@@ -1,0 +1,58 @@
+.
+├── App.js
+├── Hello.js
+├── Kanbas
+│   ├── Answers
+│   │   ├── dao.js
+│   │   ├── model.js
+│   │   └── schema.js
+│   ├── Assignments
+│   │   ├── dao.js
+│   │   ├── model.js
+│   │   ├── routes.js
+│   │   └── schema.js
+│   ├── Attempts
+│   │   ├── dao.js
+│   │   ├── model.js
+│   │   ├── routes.js
+│   │   └── schema.js
+│   ├── Courses
+│   │   ├── dao.js
+│   │   ├── model.js
+│   │   ├── routes.js
+│   │   └── schema.js
+│   ├── Enrollments
+│   │   ├── dao.js
+│   │   ├── model.js
+│   │   └── schema.js
+│   ├── Modules
+│   │   ├── dao.js
+│   │   ├── model.js
+│   │   ├── routes.js
+│   │   └── schema.js
+│   ├── Questions
+│   │   ├── dao.js
+│   │   ├── model.js
+│   │   ├── routes.js
+│   │   └── schema.js
+│   ├── Quizzes
+│   │   ├── dao.js
+│   │   ├── model.js
+│   │   ├── routes.js
+│   │   └── schema.js
+│   └── Users
+│       ├── dao.js
+│       ├── model.js
+│       ├── routes.js
+│       └── schema.js
+├── Lab5
+│   ├── PathParameters.js
+│   ├── QueryParameters.js
+│   ├── WorkingWithArrays.js
+│   ├── WorkingWithObjects.js
+│   └── index.js
+├── package-lock.json
+├── package.json
+└── project_structure.txt
+
+12 directories, 44 files

@@ -1,16 +1,16 @@
 import express from 'express';
 import Hello from "./Hello.js";
 import cors from "cors";
-import UserRoutes from "./Kanbas/Users/routes.js";
-import CourseRoutes from "./Kanbas/Courses/routes.js";
-import ModuleRoutes from "./Kanbas/Modules/routes.js";
-import AssignmentRoutes from './Kanbas/Assignments/routes.js';
-import QuizRoutes from "./Kanbas/Quizzes/routes.js";
-import QuestionRoutes from './Kanbas/Questions/routes.js';
+import UserRoutes from "./src/Users/routes.js";
+import CourseRoutes from "./src/Courses/routes.js";
+import ModuleRoutes from "./src/Modules/routes.js";
+import AssignmentRoutes from './src/Assignments/routes.js';
+import QuizRoutes from "./src/Quizzes/routes.js";
+import QuestionRoutes from './src/Questions/routes.js';
 import session from "express-session";
 import "dotenv/config";
 import mongoose from "mongoose";
-import AttemptRoutes from './Kanbas/Attempts/routes.js';
+import AttemptRoutes from './src/Attempts/routes.js';
 
 
 const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
@@ -50,5 +50,4 @@ QuizRoutes(app);
 QuestionRoutes(app);
 AttemptRoutes(app);
 Hello(app);
-Lab5(app);
 app.listen(process.env.PORT || 4000);

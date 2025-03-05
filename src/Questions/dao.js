@@ -1,21 +1,32 @@
-import model from "./model.js"
+import db from "../model.js";
 
-export function findQuestionsForQuiz(quizId) {
-    return model.find({ quiz: quizId });
+export async function findQuestionsForQuiz(quizId) {
+    const [questions] = await db.query("SELECT * FROM questions WHERE quiz = ?", [quizId]);
+    return questions;
 }
 
-export function getQuestion(questionId) {
-    return model.findOne({ _id: questionId });
+export async function getQuestion(questionId) {
+    const [questions] = await db.query("SELECT * FROM questions WHERE _id = ?", [questionId]);
+    return questions[0]; // Return first result
 }
 
-export function createQuestion(question) {
-    return model.create(question);
+export async function createQuestion(question) {
+    const { type, quiz, description, points, possible_answers, correct_answer } = question;
+    const [result] = await db.query(
+      "INSERT INTO questions (type, quiz, description, points, possible_answers, correct_answer) VALUES (?, ?, ?, ?, ?, ?)",
+      [type, quiz, description, points, JSON.stringify(possible_answers), correct_answer]
+    );
+    return { _id: result.insertId, ...question };
 }
 
-export function deleteQuestion(questionId) {
-    return model.deleteOne({_id: questionId});
+export async function deleteQuestion(questionId) {
+    await db.query("DELETE FROM questions WHERE _id = ?", [questionId]);
 }
 
-export function updateQuestion(questionId, questionUpdates) {
-    return model.updateOne({_id: questionId}, questionUpdates);
+export async function updateQuestion(questionId, questionUpdates) {
+    const { type, description, points, possible_answers, correct_answer } = questionUpdates;
+    await db.query(
+      "UPDATE questions SET type = ?, description = ?, points = ?, possible_answers = ?, correct_answer = ? WHERE _id = ?",
+      [type, description, points, JSON.stringify(possible_answers), correct_answer, questionId]
+    );
 }

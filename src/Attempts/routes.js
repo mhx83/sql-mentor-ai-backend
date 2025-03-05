@@ -1,6 +1,6 @@
 import * as attemptsDao from "./dao.js";
 import model from "./model.js";
-import QuizModel from "../Quizzes/model.js";
+import QuizModel from "../model.js";
 
 export default function AttemptRoutes(app) {
     // 校验用户是否可以尝试

@@ -1,21 +1,71 @@
-import model from "./model.js";
+import db from "../model.js"; // Import shared MySQL connection
 
-export const createUser = (user) => {
-    delete user._id;
-    return model.create(user);
+
+// Create a new user
+export const createUser = async (user) => {
+    const { username, password, firstName, lastName, email, dob, role } = user;
+    const insertSQL = `
+        INSERT INTO users (username, password, firstName, lastName, email, dob, role)
+        VALUES (?, ?, ?, ?, ?, ?, ?);
+    `;
+    const [result] = await db.query(insertSQL, [username, password, firstName, lastName, email, dob, role]);
+    return { _id: result.insertId, ...user };
 };
 
-export const findUsersByPartialName = (partialName) => {
-    const regex = new RegExp(partialName, "i"); // 'i' makes it case-insensitive
-    return model.find({
-        $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }],
-    });
+// Find users by partial name (Search in `firstName` & `lastName`)
+export const findUsersByPartialName = async (partialName) => {
+    const search = `%${partialName}%`;
+    const [rows] = await db.query(
+      "SELECT * FROM users WHERE firstName LIKE ? OR lastName LIKE ?",
+      [search, search]
+    );
+    return rows;
 };
 
-export const findAllUsers = () => model.find();
-export const findUserById = (userId) => model.findById(userId);
-export const findUserByUsername = (username) => model.findOne({ username: username });
-export const findUserByCredentials = (username, password) => model.findOne({ username, password });
-export const updateUser = (userId, user) => model.updateOne({ _id: userId }, { $set: user });
-export const deleteUser = (userId) => model.deleteOne({ _id: userId });
-export const findUsersByRole = (role) => model.find({ role: role });
+// Find all users
+export const findAllUsers = async () => {
+    const [rows] = await db.query("SELECT * FROM users");
+    return rows;
+};
+
+// Find user by ID
+export const findUserById = async (_id) => {
+    const [rows] = await db.query("SELECT * FROM users WHERE _id = ?", [_id]);
+    return rows.length ? rows[0] : null;
+};
+
+// Find user by username
+export const findUserByUsername = async (username) => {
+    const [rows] = await db.query("SELECT * FROM users WHERE username = ?", [username]);
+    return rows.length ? rows[0] : null;
+};
+
+// Find user by credentials (Login)
+export const findUserByCredentials = async (username, password) => {
+    const [rows] = await db.query("SELECT * FROM users WHERE username = ? AND password = ?", [username, password]);
+    return rows.length ? rows[0] : null;
+};
+
+// Update user
+export const updateUser = async (_id, user) => {
+    const { username, password, firstName, lastName, email, dob, role } = user;
+    const updateSQL = `
+        UPDATE users
+        SET username = ?, password = ?, firstName = ?, lastName = ?, email = ?, dob = ?, role = ?
+        WHERE _id = ?;
+    `;
+    const [result] = await db.query(updateSQL, [username, password, firstName, lastName, email, dob, role, _id]);
+    return result.affectedRows > 0 ? { _id, ...user } : null;
+};
+
+// Delete user
+export const deleteUser = async (_id) => {
+    const [result] = await db.query("DELETE FROM users WHERE _id = ?", [_id]);
+    return result.affectedRows > 0;
+};
+
+// Find users by role
+export const findUsersByRole = async (role) => {
+    const [rows] = await db.query("SELECT * FROM users WHERE role = ?", [role]);
+    return rows;
+};

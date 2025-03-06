@@ -1,6 +1,4 @@
-import * as attemptsDao from "./dao.js";
-import model from "./model.js";
-import QuizModel from "../model.js";
+import db from "../model.js";
 
 export default function AttemptRoutes(app) {
     // 校验用户是否可以尝试
@@ -13,8 +11,8 @@ export default function AttemptRoutes(app) {
                 return res.status(401).json({ message: "User not logged in" });
             }
 
-            // 获取测验信息
-            const quiz = await QuizModel.findById(quizId);
+            // Fetch Quiz by ID
+            const [quiz] = await db.query("SELECT * FROM quizzes WHERE _id = ?", [quizId]);
             if (!quiz) {
                 return res.status(404).json({ message: "Quiz not found" });
             }
@@ -22,8 +20,11 @@ export default function AttemptRoutes(app) {
             const ATTEMPTS_LIMIT = quiz.has_many_attempts; // 是否有限制
             const MAX_ATTEMPTS = quiz.how_many_attempts; // 最大尝试次数
 
-            // 获取用户的尝试记录
-            const existingAttempt = await model.findOne({ user: currentUser._id, quiz: quizId });
+            // Fetch Existing Attempt
+            const [existingAttempt] = await db.query(
+              "SELECT * FROM attempts WHERE user = ? AND quiz = ? LIMIT 1",
+              [currentUser._id, quizId]
+            );
 
             // 校验尝试次数
             if (existingAttempt) {

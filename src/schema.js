@@ -8,7 +8,7 @@ const createTables = async () => {
       password VARCHAR(100) NOT NULL,
       firstName VARCHAR(50),
       lastName VARCHAR(50),
-      email VARCHAR(100) UNIQUE NOT NULL,
+      email VARCHAR(100),
       dob DATE,
       role ENUM('STUDENT', 'FACULTY', 'ADMIN', 'USER') DEFAULT 'USER'
     );
@@ -44,25 +44,11 @@ const createTables = async () => {
        quiz_type VARCHAR(50),
        points INT DEFAULT 0,
        assignment_group VARCHAR(255),
-       shuffle_answer ENUM('YES', 'NO') DEFAULT 'NO',
-       has_time_limit ENUM('YES', 'NO') DEFAULT 'NO',
-       time_limit INT DEFAULT NULL,
-       has_many_attempts ENUM('YES', 'NO') DEFAULT 'NO',
-       how_many_attempts INT DEFAULT NULL,
-       show_correct_answer ENUM('YES', 'NO') DEFAULT 'NO',
-       show_answer_date DATE DEFAULT NULL,
-       access_code_required ENUM('YES', 'NO') DEFAULT 'NO',
-       access_code VARCHAR(255) DEFAULT NULL,
-       one_question_at_a_time ENUM('YES', 'NO') DEFAULT 'NO',
-       webcam_required ENUM('YES', 'NO') DEFAULT 'NO',
-       lock_questions_after_answering ENUM('YES', 'NO') DEFAULT 'NO',
-       due_date DATE DEFAULT NULL,
-       available_date DATE DEFAULT NULL,
-       until_date DATE DEFAULT NULL,
-       publish_status VARCHAR(50) DEFAULT 'published',
+       difficulty VARCHAR(50),
        FOREIGN KEY (course) REFERENCES courses(_id) ON DELETE CASCADE
       );
   `);
+
 
   await db.query(`
     CREATE TABLE IF NOT EXISTS questions (
@@ -76,7 +62,30 @@ const createTables = async () => {
        FOREIGN KEY (quiz) REFERENCES quizzes(_id) ON DELETE CASCADE
       );
   `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS attempts (
+      _id INT AUTO_INCREMENT PRIMARY KEY,
+      user INT NOT NULL,
+      quiz INT NOT NULL,
+      attemptCount INT DEFAULT 1,
+      score INT DEFAULT 0,
+      submissionTime DATETIME,
+      FOREIGN KEY (user) REFERENCES users(_id),
+      FOREIGN KEY (quiz) REFERENCES quizzes(_id)
+    );
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS answers (
+       attempt_id INT NOT NULL,
+       question_id INT NOT NULL,
+       user_answer VARCHAR(255) NOT NULL,
+       PRIMARY KEY (attempt_id, question_id),
+       FOREIGN KEY (attempt_id) REFERENCES attempts(_id),
+       FOREIGN KEY (question_id) REFERENCES questions(_id)
+    );
+  `);
 };
 
 export default createTables;
-

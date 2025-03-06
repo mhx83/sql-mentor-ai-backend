@@ -44,20 +44,14 @@ const insertSampleData = async () => {
   if (quizCount[0].count === 0) {
     await db.query(`
     INSERT INTO quizzes 
-      (name, course, instruction, num_of_questions, quiz_type, points, assignment_group, shuffle_answer, 
-      has_time_limit, time_limit, has_many_attempts, how_many_attempts, show_correct_answer, show_answer_date, 
-      access_code_required, access_code, one_question_at_a_time, webcam_required, lock_questions_after_answering, 
-      due_date, available_date, until_date, publish_status)
+      (name, course, instruction, num_of_questions, quiz_type, points, assignment_group, difficulty)
     VALUES 
-      ('Test Quiz 1', 1, 'This is the first test quiz.', 3, 'Graded Quiz', 10, 'QUIZZES', 'NO', 
-      'YES', 20, 'YES', 2, 'NO', '2025-05-14', 'NO', NULL, 'YES', 'NO', 'NO', 
-      '2025-05-14', '2025-05-07', '2025-05-14', 'published'),
+      ('Test Quiz 1', 1, 'This is the first test quiz.', 2, 'Graded Quiz', 8, 'QUIZZES', 'Easy'),
 
-      ('Test Quiz 2', 1, 'This is the second test quiz.', 4, 'Graded Quiz', 5, 'QUIZZES', 'NO', 
-      'YES', 20, 'YES', 3, 'NO', '2025-05-14', 'NO', NULL, 'YES', 'NO', 'NO', 
-      '2025-05-14', '2025-05-07', '2025-05-14', 'published')
+      ('Test Quiz 2', 1, 'This is the second test quiz.', 1, 'Graded Quiz', 4, 'QUIZZES', 'Medium')
   `);
   }
+
 
   const [questionCount] = await db.query("SELECT COUNT(*) AS count FROM questions");
   if (questionCount[0].count === 0) {
@@ -73,4 +67,3 @@ const insertSampleData = async () => {
 };
 
 export default insertSampleData;
-

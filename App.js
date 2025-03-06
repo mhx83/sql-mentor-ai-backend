@@ -1,10 +1,7 @@
 import express from 'express';
-import Hello from "./Hello.js";
 import cors from "cors";
 import UserRoutes from "./src/Users/routes.js";
 import CourseRoutes from "./src/Courses/routes.js";
-import ModuleRoutes from "./src/Modules/routes.js";
-import AssignmentRoutes from './src/Assignments/routes.js';
 import QuizRoutes from "./src/Quizzes/routes.js";
 import QuestionRoutes from './src/Questions/routes.js';
 import session from "express-session";
@@ -17,10 +14,10 @@ import mysql from "mysql2/promise";
 
 // MySQL Connection Configuration
 const dbConfig = {
-    host: process.env.DB_HOST || "localhost",
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "@Zzn980615",
-    database: process.env.DB_NAME || "test",
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 };
 
 // Connect to Database
@@ -73,6 +70,5 @@ CourseRoutes(app);
 // AssignmentRoutes(app);
 QuizRoutes(app);
 QuestionRoutes(app);
-// AttemptRoutes(app);
-// Hello(app);
+AttemptRoutes(app);
 app.listen(process.env.PORT || 4000);

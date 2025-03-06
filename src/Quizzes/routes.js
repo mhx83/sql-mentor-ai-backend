@@ -30,7 +30,8 @@ export default function QuizRoutes(app) {
         // 强制重新计算 points
         const questions = await questionsDao.findQuestionsForQuiz(quizId);
         const totalPoints = questions.reduce((sum, q) => sum + (q.points || 0), 0);
-    
+
+        quizUpdates.num_of_questions = questions.length;
         quizUpdates.points = totalPoints; // 强制覆盖 points
     
         const status = await quizzesDao.updateQuiz(quizId, quizUpdates);

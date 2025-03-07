@@ -66,8 +66,6 @@ app.use(session(sessionOptions));
 app.use(express.json());
 UserRoutes(app);
 CourseRoutes(app);
-// ModuleRoutes(app);
-// AssignmentRoutes(app);
 QuizRoutes(app);
 QuestionRoutes(app);
 AttemptRoutes(app);

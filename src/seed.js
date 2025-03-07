@@ -31,12 +31,9 @@ const insertSampleData = async () => {
     VALUES 
       (1, 2, 'ENROLLED'),
       (1, 1, 'ENROLLED'),
-      (2, 4, 'ENROLLED'),
       (2, 1, 'ENROLLED'),
-      (3, 2, 'ENROLLED'),
-      (4, 2, 'ENROLLED'),
-      (4, 4, 'ENROLLED'),
-      (4, 1, 'ENROLLED'); 
+      (2, 2, 'ENROLLED'),
+      (3, 2, 'ENROLLED')
   `);
   }
 

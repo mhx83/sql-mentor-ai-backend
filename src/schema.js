@@ -10,7 +10,7 @@ const createTables = async () => {
       lastName VARCHAR(50),
       email VARCHAR(100),
       dob DATE,
-      role ENUM('STUDENT', 'FACULTY', 'ADMIN', 'USER') DEFAULT 'USER'
+      role ENUM('STUDENT', 'FACULTY') DEFAULT 'STUDENT'
     );
   `);
 
@@ -28,7 +28,7 @@ const createTables = async () => {
       _id INT AUTO_INCREMENT PRIMARY KEY,
       course INT NOT NULL,
       user INT NOT NULL,
-      status ENUM('ENROLLED', 'DROPPED', 'COMPLETED') DEFAULT 'ENROLLED',
+      status VARCHAR(50),
       FOREIGN KEY (course) REFERENCES courses(_id) ON DELETE CASCADE,
       FOREIGN KEY (user) REFERENCES users(_id) ON DELETE CASCADE
     );
@@ -41,10 +41,10 @@ const createTables = async () => {
        course INT NOT NULL,
        instruction TEXT,
        num_of_questions INT DEFAULT 0,
-       quiz_type VARCHAR(50),
+       quiz_type ENUM('Graded Quiz', 'Practice Quiz', 'Graded Survey', 'Ungraded Survey') DEFAULT 'Graded Quiz',
        points INT DEFAULT 0,
-       assignment_group VARCHAR(255),
-       difficulty VARCHAR(50),
+       assignment_group ENUM('ASSIGNMENTS', 'QUIZZES', 'EXAMS', 'PROJECTS') DEFAULT 'QUIZZES',
+       difficulty ENUM('Easy', 'Medium', 'Hard') DEFAULT 'Easy',
        FOREIGN KEY (course) REFERENCES courses(_id) ON DELETE CASCADE
       );
   `);
@@ -84,6 +84,19 @@ const createTables = async () => {
        PRIMARY KEY (attempt_id, question_id),
        FOREIGN KEY (attempt_id) REFERENCES attempts(_id),
        FOREIGN KEY (question_id) REFERENCES questions(_id)
+    );
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS messages (
+       _id INT AUTO_INCREMENT PRIMARY KEY,
+       sender_id INT NOT NULL,
+       receiver_id INT NOT NULL,
+       subject VARCHAR(255) NOT NULL,
+       content TEXT,
+       sendTime DATETIME,
+       FOREIGN KEY (sender_id) REFERENCES users(_id),
+       FOREIGN KEY (receiver_id) REFERENCES users(_id)
     );
   `);
 };

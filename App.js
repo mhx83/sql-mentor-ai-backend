@@ -11,6 +11,8 @@ import createTables from "./src/schema.js";
 import insertSampleData from "./src/seed.js";
 import mysql from "mysql2/promise";
 
+const isProduction = process.env.NODE_ENV === "production"
+
 // MySQL Connection Configuration
 let dbConfig = {
     host: process.env.DB_HOST,
@@ -19,7 +21,7 @@ let dbConfig = {
     database: process.env.DB_NAME
 };
 
-if (process.env.NODE_ENV === "production") {
+if (isProduction) {
     dbConfig = {
         user: "root",
         password: "87654321",
@@ -47,11 +49,15 @@ let db;
 })();
 
 const app = express();
+const allowedOrigins = [
+    "http://localhost:3000",
+    process.env.FRONTEND_URL // This will be your Netlify URL
+];
 
 app.use(
   cors({
       credentials: true,
-      origin: process.env.FRONTEND_URL || "http://localhost:3000",
+      origin: allowedOrigins,
   })
 );
 
@@ -59,15 +65,15 @@ const sessionOptions = {
     secret: process.env.SESSION_SECRET || "kanbas",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+        httpOnly: true, // Prevents JavaScript access to cookies
+        secure: true, // Ensures cookies only work over HTTPS
+        sameSite: "None", // Allows cookies in cross-site requests
+    }
 };
 
 if (process.env.NODE_ENV === "production") {
     sessionOptions.proxy = true;
-    sessionOptions.cookie = {
-        sameSite: "none",
-        secure: true,
-        domain: process.env.REMOTE_SERVER,
-    };
 }
 
 app.use(session(sessionOptions));

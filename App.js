@@ -67,8 +67,8 @@ const sessionOptions = {
     saveUninitialized: false,
     cookie: {
         httpOnly: true, // Prevents JavaScript access to cookies
-        secure: true, // Ensures cookies only work over HTTPS
-        sameSite: "None", // Allows cookies in cross-site requests
+        secure: process.env.NODE_ENV === "production", // Ensures cookies only work over HTTPS
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Allows cookies in cross-site requests
     }
 };
 

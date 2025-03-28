@@ -10,6 +10,7 @@ import AttemptRoutes from "./src/Attempts/routes.js";
 import createTables from "./src/schema.js";
 import insertSampleData from "./src/seed.js";
 import mysql from "mysql2/promise";
+import AnalyticsRoutes from "./src/Analytics/routes.js";
 
 const isProduction = process.env.NODE_ENV === "production"
 
@@ -84,6 +85,7 @@ CourseRoutes(app);
 QuizRoutes(app);
 QuestionRoutes(app);
 AttemptRoutes(app);
+AnalyticsRoutes(app);
 
 // Define a test route
 app.get("/", (req, res) => {

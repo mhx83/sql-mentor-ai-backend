@@ -59,36 +59,68 @@ export async function getFacultyGrades(courseId) {
 }
 
 export async function fetchActivityData(userId, userRole, dateRange, countType) {
-    const interval = dateRange === "Weekly" ? "7 DAY" : "30 DAY";
-  
-    let query = "";
-    let values = [];
-  
-    if (userRole === "STUDENT") {
+  // Determine the interval based on the dateRange parameter.
+  const interval = dateRange === "Weekly" ? "7 DAY" : "30 DAY";
+
+  let query = "";
+  let values = [];
+
+  if (userRole === "STUDENT") {
+    if (countType === "TotalAttempts") {
+      // Count all attempts for each course the student is enrolled in.
       query = `
         SELECT c.name AS name, 
                COUNT(a._id) AS count
         FROM attempts a
         JOIN quizzes q ON q._id = a.quiz
         JOIN courses c ON c._id = q.course
-        WHERE a.user = ? AND a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
+        WHERE a.user = ? 
+          AND a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
         GROUP BY c._id;
       `;
-      values = [userId];
-    } else if (userRole === "FACULTY") {
+    } else if (countType === "CompletedQuizzes") {
+      // Count distinct quizzes attempted (i.e. completed) by the student for each course.
       query = `
-        SELECT s.name AS name, 
+        SELECT c.name AS name,
+               COUNT(DISTINCT a.quiz) AS count
+        FROM attempts a
+        JOIN quizzes q ON q._id = a.quiz
+        JOIN courses c ON c._id = q.course
+        WHERE a.user = ? 
+          AND a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
+        GROUP BY c._id;
+      `;
+    }
+    values = [userId];
+  } else if (userRole === "FACULTY") {
+    if (countType === "TotalAttempts") {
+      // Count all attempts for each student.
+      query = `
+        SELECT CONCAT(u.firstName, ' ', u.lastName) AS name, 
                COUNT(a._id) AS count
         FROM attempts a
-        JOIN students s ON a.user = s._id
-        AND a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
-        GROUP BY s._id;
+        JOIN users u ON a.user = u._id
+        WHERE a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
+        GROUP BY u._id;
       `;
-      values = [userId];
+    } else if (countType === "CompletedQuizzes") {
+      // Count distinct quizzes attempted by each student.
+      query = `
+        SELECT CONCAT(u.firstName, ' ', u.lastName) AS name,
+               COUNT(DISTINCT a.quiz) AS count
+        FROM attempts a
+        JOIN users u ON a.user = u._id
+        WHERE a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
+        GROUP BY u._id;
+      `;
     }
-  
-    const [rows] = await db.query(query, values);
-    return rows;
+    // In the FACULTY branch, we don't filter by the faculty's userId,
+    // so no values need to be passed.
+    values = [];
+  }
+
+  const [rows] = await db.query(query, values);
+  return rows;
 }
 
 export async function getCommunicationData(userId) {

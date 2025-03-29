@@ -41,7 +41,7 @@ export async function getFacultyGrades(courseId) {
             0) AS grade,
             'submitted' AS type
         FROM enrollments e
-        JOIN users u ON e.user = u._id
+        JOIN users u ON e.user = u._id AND u.role = "STUDENT"
         LEFT JOIN (
             SELECT user, quiz, MAX(score) AS max_score
             FROM attempts
@@ -76,7 +76,8 @@ export async function fetchActivityData(userId, userRole, dateRange, countType) 
         JOIN courses c ON c._id = q.course
         WHERE a.user = ? 
           AND a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
-        GROUP BY c._id;
+        GROUP BY c._id
+        ORDER BY name;
       `;
     } else if (countType === "CompletedQuizzes") {
       // Count distinct quizzes attempted (i.e. completed) by the student for each course.
@@ -88,7 +89,8 @@ export async function fetchActivityData(userId, userRole, dateRange, countType) 
         JOIN courses c ON c._id = q.course
         WHERE a.user = ? 
           AND a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
-        GROUP BY c._id;
+        GROUP BY c._id
+        ORDER BY name;
       `;
     }
     values = [userId];
@@ -101,7 +103,8 @@ export async function fetchActivityData(userId, userRole, dateRange, countType) 
         FROM attempts a
         JOIN users u ON a.user = u._id
         WHERE a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
-        GROUP BY u._id;
+        GROUP BY u._id
+        ORDER BY name;
       `;
     } else if (countType === "CompletedQuizzes") {
       // Count distinct quizzes attempted by each student.
@@ -111,7 +114,8 @@ export async function fetchActivityData(userId, userRole, dateRange, countType) 
         FROM attempts a
         JOIN users u ON a.user = u._id
         WHERE a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
-        GROUP BY u._id;
+        GROUP BY u._id
+        ORDER BY name;
       `;
     }
     // In the FACULTY branch, we don't filter by the faculty's userId,

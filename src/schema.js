@@ -1,7 +1,7 @@
 import db from "./model.js"; // Shared database connection
 
 const createTables = async () => {
-  await db.query(`
+    await db.query(`
     CREATE TABLE IF NOT EXISTS users (
       _id INT AUTO_INCREMENT PRIMARY KEY,
       username VARCHAR(50) UNIQUE NOT NULL,
@@ -14,7 +14,7 @@ const createTables = async () => {
     );
   `);
 
-  await db.query(`
+    await db.query(`
     CREATE TABLE IF NOT EXISTS courses (
       _id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(100) NOT NULL,
@@ -23,7 +23,7 @@ const createTables = async () => {
     );
   `);
 
-  await db.query(`
+    await db.query(`
     CREATE TABLE IF NOT EXISTS enrollments (
       _id INT AUTO_INCREMENT PRIMARY KEY,
       course INT NOT NULL,
@@ -34,7 +34,7 @@ const createTables = async () => {
     );
   `);
 
-  await db.query(`
+    await db.query(`
     CREATE TABLE IF NOT EXISTS quizzes (
        _id INT AUTO_INCREMENT PRIMARY KEY,
        name VARCHAR(255) NOT NULL,
@@ -50,7 +50,7 @@ const createTables = async () => {
   `);
 
 
-  await db.query(`
+    await db.query(`
     CREATE TABLE IF NOT EXISTS questions (
        _id INT AUTO_INCREMENT PRIMARY KEY,
        type VARCHAR(50),
@@ -63,7 +63,7 @@ const createTables = async () => {
       );
   `);
 
-  await db.query(`
+    await db.query(`
     CREATE TABLE IF NOT EXISTS attempts (
       _id INT AUTO_INCREMENT PRIMARY KEY,
       user INT NOT NULL,
@@ -76,7 +76,7 @@ const createTables = async () => {
     );
   `);
 
-  await db.query(`
+    await db.query(`
     CREATE TABLE IF NOT EXISTS answers (
        attempt_id INT NOT NULL,
        question_id INT NOT NULL,
@@ -87,7 +87,7 @@ const createTables = async () => {
     );
   `);
 
-  await db.query(`
+    await db.query(`
     CREATE TABLE IF NOT EXISTS messages (
        _id INT AUTO_INCREMENT PRIMARY KEY,
        sender_id INT NOT NULL,

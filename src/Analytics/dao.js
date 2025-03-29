@@ -1,7 +1,7 @@
 import db from "../model.js"; // Import MySQL connection
 
 export async function getStudentGrades(userId, courseId) {
-    const query = `
+	const query = `
         SELECT 
             q.name AS name,
             CASE 
@@ -22,13 +22,13 @@ export async function getStudentGrades(userId, courseId) {
         WHERE q.course = ?
         ORDER BY q._id;
     `;
-    const values = [userId, courseId];
-    const [rows] = await db.query(query, values);
-    return rows;
+	const values = [userId, courseId];
+	const [rows] = await db.query(query, values);
+	return rows;
 }
 
 export async function getFacultyGrades(courseId) {
-    const query = `
+	const query = `
         SELECT 
             CONCAT(u.firstName, ' ', u.lastName) AS name,
             COALESCE(
@@ -52,13 +52,14 @@ export async function getFacultyGrades(courseId) {
         GROUP BY u.firstName, u.lastName
         ORDER BY name;
     `;
-    // courseId is used twice in the query.
-    const values = [courseId, courseId];
-    const [rows] = await db.query(query, values);
-    return rows;
+	// courseId is used twice in the query.
+	const values = [courseId, courseId];
+	const [rows] = await db.query(query, values);
+	return rows;
 }
 
 export async function fetchActivityData(userId, userRole, dateRange, countType) {
+<<<<<<< HEAD
   // Determine the interval based on the dateRange parameter.
   const interval = dateRange === "Weekly" ? "7 DAY" : "30 DAY";
 
@@ -69,6 +70,15 @@ export async function fetchActivityData(userId, userRole, dateRange, countType) 
     if (countType === "TotalAttempts") {
       // Count all attempts for each course the student is enrolled in.
       query = `
+=======
+	const interval = dateRange === "Weekly" ? "7 DAY" : "30 DAY";
+
+	let query = "";
+	let values = [];
+
+	if (userRole === "STUDENT") {
+		query = `
+>>>>>>> 1234f7d (feat(backend): implement messaging routes and DAO for MySQL communication module)
         SELECT c.name AS name, 
                COUNT(a._id) AS count
         FROM attempts a
@@ -78,6 +88,7 @@ export async function fetchActivityData(userId, userRole, dateRange, countType) 
           AND a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
         GROUP BY c._id;
       `;
+<<<<<<< HEAD
     } else if (countType === "CompletedQuizzes") {
       // Count distinct quizzes attempted (i.e. completed) by the student for each course.
       query = `
@@ -97,6 +108,12 @@ export async function fetchActivityData(userId, userRole, dateRange, countType) 
       // Count all attempts for each student.
       query = `
         SELECT CONCAT(u.firstName, ' ', u.lastName) AS name, 
+=======
+		values = [userId];
+	} else if (userRole === "FACULTY") {
+		query = `
+        SELECT s.name AS name, 
+>>>>>>> 1234f7d (feat(backend): implement messaging routes and DAO for MySQL communication module)
                COUNT(a._id) AS count
         FROM attempts a
         JOIN users u ON a.user = u._id
@@ -113,6 +130,7 @@ export async function fetchActivityData(userId, userRole, dateRange, countType) 
         WHERE a.submissionTime >= DATE_SUB(CURDATE(), INTERVAL ${interval})
         GROUP BY u._id;
       `;
+<<<<<<< HEAD
     }
     // In the FACULTY branch, we don't filter by the faculty's userId,
     // so no values need to be passed.
@@ -121,10 +139,17 @@ export async function fetchActivityData(userId, userRole, dateRange, countType) 
 
   const [rows] = await db.query(query, values);
   return rows;
+=======
+		values = [userId];
+	}
+
+	const [rows] = await db.query(query, values);
+	return rows;
+>>>>>>> 1234f7d (feat(backend): implement messaging routes and DAO for MySQL communication module)
 }
 
 export async function getCommunicationData(userId) {
-    const query = `
+	const query = `
       SELECT 
         CONCAT(u.firstName, ' ', u.lastName) AS name,
         u.role AS role,
@@ -140,7 +165,7 @@ export async function getCommunicationData(userId) {
       JOIN users u ON u._id = t.other_user
       ORDER BY t.count DESC;
     `;
-    const values = [userId, userId, userId];
-    const [rows] = await db.query(query, values);
-    return rows; 
+	const values = [userId, userId, userId];
+	const [rows] = await db.query(query, values);
+	return rows;
 }

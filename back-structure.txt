@@ -1,0 +1,34 @@
+.
+├── App.js
+├── Dockerfile
+├── node_structure.txt
+├── package-lock.json
+├── package.json
+├── sql-mentor-ai-backend.iml
+├── src
+│   ├── Analytics
+│   │   ├── dao.js
+│   │   └── routes.js
+│   ├── Attempts
+│   │   ├── dao.js
+│   │   └── routes.js
+│   ├── Courses
+│   │   ├── dao.js
+│   │   └── routes.js
+│   ├── Enrollments
+│   │   └── dao.js
+│   ├── Questions
+│   │   ├── dao.js
+│   │   └── routes.js
+│   ├── Quizzes
+│   │   ├── dao.js
+│   │   └── routes.js
+│   ├── Users
+│   │   ├── dao.js
+│   │   └── routes.js
+│   ├── model.js
+│   ├── schema.js
+│   └── seed.js
+└── structure.txt
+
+9 directories, 23 files

@@ -155,6 +155,32 @@ export async function getAIResponse(userId, inputText) {
     throw new Error("Input text is required.");
   }
 
+  // Define your schema-aware prompt
+  const prompt = `
+    You are an expert SQL generator. Based on the following database schema, convert the given natural language input into a valid, readable SQL query.
+
+    Schema:
+    - users(_id, username, password, firstName, lastName, email, dob, role)
+    - courses(_id, name, number, description)
+    - enrollments(_id, course, user, status)
+    - quizzes(_id, name, course, instruction, num_of_questions, quiz_type, points, assignment_group, difficulty)
+    - questions(_id, type, quiz, description, points, possible_answers, correct_answer)
+    - attempts(_id, user, quiz, attemptCount, score, submissionTime)
+    - answers(attempt_id, question_id, user_answer)
+    - messages(_id, sender_id, receiver_id, subject, content, sendTime)
+
+    Your task:
+    - Use only the tables and columns specified above.
+    - Use JOINs where needed to include relevant information.
+    - Use meaningful column aliases with human-friendly labels (e.g., "Student Name", "Email", "Course Title").
+    - Concatenate firstName and lastName as full names if needed.
+    - Assume all foreign key relationships and data types are enforced.
+    - Convert the user's natural language query (inputText) into a readable SQL query.
+    - Return only the SQL query, without any additional text or explanations.
+
+    User Input: "${inputText}"
+  `.trim();
+    
   try {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
@@ -162,7 +188,7 @@ export async function getAIResponse(userId, inputText) {
         model: "gpt-3.5-turbo",
         messages: [
           { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: inputText }
+          { role: "user", content: prompt }
         ]
       },
       {
@@ -173,9 +199,19 @@ export async function getAIResponse(userId, inputText) {
       }
     );
 
-    // Extract and return the AI response text
-    const aiResponse = response.data.choices[0].message.content;
-    return aiResponse;
+    let aiResponse = response.data.choices[0].message.content.trim();
+
+    // Remove Markdown SQL block if it exists
+    if (aiResponse.startsWith("```sql")) {
+      aiResponse = aiResponse.replace(/```sql|```/g, "").trim();
+    }
+    console.log("Generated SQL:", aiResponse);
+
+    // Step 2: Execute the SQL query
+    const [rows] = await db.query(aiResponse);
+
+    // Step 3: Return the result
+    return rows;
   } catch (error) {
     console.error("Error in getAIResponse:", error.response?.data || error.message);
     throw new Error("Failed to fetch AI response.");

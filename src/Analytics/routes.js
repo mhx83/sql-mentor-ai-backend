@@ -46,4 +46,21 @@ export default function AnalyticsRoutes(app) {
             res.status(500).json({ error: 'Internal server error' });
         }
     });
+
+    app.post("/api/user/:userId/AICustom", async (req, res) => {
+        const { userId } = req.params;
+        const { inputText } = req.body;
+      
+        if (!inputText) {
+          return res.status(400).json({ error: "Input text is required." });
+        }
+      
+        try {
+          const aiResponse = await dao.getAIResponse(userId, inputText);
+          res.json({ response: aiResponse });
+        } catch (err) {
+          console.error("Error fetching AI response:", err.message);
+          res.status(500).json({ error: "Failed to fetch AI response." });
+        }
+    });
 }

@@ -4,3 +4,6 @@
 
 # miscq
 .DS_Store
+
+# env file
+.env

@@ -1,4 +1,5 @@
 import db from "../model.js"; // Import MySQL connection
+import axios from "axios";
 
 export async function getStudentGrades(userId, courseId) {
 	const query = `
@@ -147,4 +148,36 @@ export async function getCommunicationData(userId) {
 	const values = [userId, userId, userId];
 	const [rows] = await db.query(query, values);
 	return rows;
+}
+
+export async function getAIResponse(userId, inputText) {
+  if (!inputText) {
+    throw new Error("Input text is required.");
+  }
+
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "You are a helpful assistant." },
+          { role: "user", content: inputText }
+        ]
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+        }
+      }
+    );
+
+    // Extract and return the AI response text
+    const aiResponse = response.data.choices[0].message.content;
+    return aiResponse;
+  } catch (error) {
+    console.error("Error in getAIResponse:", error.response?.data || error.message);
+    throw new Error("Failed to fetch AI response.");
+  }
 }

@@ -131,8 +131,8 @@ export async function getCommunicationData(userId) {
 	const query = `
       SELECT 
         CONCAT(u.firstName, ' ', u.lastName) AS name,
-        u.role AS role,
-        t.count AS count
+        t.count AS count,
+        u.role AS role
       FROM (
         SELECT
           CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS other_user,

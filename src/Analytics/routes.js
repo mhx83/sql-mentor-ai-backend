@@ -36,10 +36,10 @@ export default function AnalyticsRoutes(app) {
         }
     );
 
-    app.get('api/user/:userId/communication', async (req, res) => {
+    app.get('/api/user/:userId/communication', async (req, res) => {
         try {
             const { userId } = req.params;
-            const data = await getCommunicationData(userId);
+            const data = await dao.getCommunicationData(userId);
             res.json(data);
         } catch (err) {
             console.error('Error fetching communication data:', err);

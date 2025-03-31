@@ -9,40 +9,8 @@ import "dotenv/config";
 import AttemptRoutes from "./src/Attempts/routes.js";
 import createTables from "./src/schema.js";
 import insertSampleData from "./src/seed.js";
-import mysql from "mysql2/promise";
 import AnalyticsRoutes from "./src/Analytics/routes.js";
 import CommunicationRoutes from './src/Communication/routes.js';
-
-const isProduction = process.env.NODE_ENV === "production"
-
-// MySQL Connection Configuration
-let dbConfig = {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-};
-
-if (isProduction) {
-    dbConfig = {
-        user: "root",
-        password: "87654321",
-        database: "project",
-        socketPath: "/cloudsql/db-group9-451622:us-west1:group9-sql-mentor-project",
-    }
-}
-
-// Connect to Database
-let db;
-(async () => {
-    try {
-        db = await mysql.createConnection(dbConfig);
-        console.log("Connected to MySQL database:", dbConfig.database);
-    } catch (err) {
-        console.error("Error connecting to MySQL:", err);
-        process.exit(1); // Exit process if DB connection fails
-    }
-})();
 
 // Ensure tables and sample data exist at startup
 (async () => {

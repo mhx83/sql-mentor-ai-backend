@@ -155,8 +155,8 @@ export async function getAIResponse(userId, inputText) {
     throw new Error("Input text is required.");
   }
 
-  // Define your schema-aware prompt
-  const prompt = `
+  // Step 1: Generate SQL using GPT
+  const sqlPrompt = `
     You are an expert SQL generator. Based on the following database schema, convert the given natural language input into a valid, readable SQL query.
 
     Schema:
@@ -174,44 +174,75 @@ export async function getAIResponse(userId, inputText) {
     - Use JOINs where needed to include relevant information.
     - Use meaningful column aliases with human-friendly labels (e.g., "Student Name", "Email", "Course Title").
     - Concatenate firstName and lastName as full names if needed.
-    - Assume all foreign key relationships and data types are enforced.
-    - Convert the user's natural language query (inputText) into a readable SQL query.
-    - Return only the SQL query, without any additional text or explanations.
+    - If the query is about the current user (e.g. contains "my", "me", or "I"), filter using the provided user ID.
+    - To accurately reflect the user's best performance, we consider only the highest score of all attempts per quiz for that user
+    - Return only the SQL query, without any explanations.
 
     User Input: "${inputText}"
+    Current userID: "${userId}"
   `.trim();
-    
+
   try {
-    const response = await axios.post(
+    // 🔧 Step 1: Let GPT generate the SQL
+    const sqlRes = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
         model: "gpt-3.5-turbo",
         messages: [
           { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: prompt }
-        ]
+          { role: "user", content: sqlPrompt },
+        ],
       },
       {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-        }
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
       }
     );
 
-    let aiResponse = response.data.choices[0].message.content.trim();
+    let aiSQL = sqlRes.data.choices[0].message.content.trim();
 
-    // Remove Markdown SQL block if it exists
-    if (aiResponse.startsWith("```sql")) {
-      aiResponse = aiResponse.replace(/```sql|```/g, "").trim();
+    // 🧹 Remove markdown ```sql blocks
+    if (aiSQL.startsWith("```sql")) {
+      aiSQL = aiSQL.replace(/```sql|```/g, "").trim();
     }
-    console.log("Generated SQL:", aiResponse);
 
-    // Step 2: Execute the SQL query
-    const [rows] = await db.query(aiResponse);
+    console.log("Generated SQL:", aiSQL);
 
-    // Step 3: Return the result
-    return rows;
+    // 🧪 Step 2: Execute the SQL
+    const [rows] = await db.query(aiSQL);
+
+    // 📘 Step 3: Ask GPT to convert raw result to a natural language answer
+    const naturalLangPrompt = `
+      You are a helpful assistant that summarizes SQL query results into natural, friendly user-facing answers.
+
+      Original Question: "${inputText}"
+      Raw Result (JSON): ${JSON.stringify(rows, null, 2)}
+
+      Please return a clear and concise response. Avoid using JSON formatting.
+      If the result is empty, say so clearly.
+    `.trim();
+
+    const explainRes = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "You are a helpful assistant." },
+          { role: "user", content: naturalLangPrompt },
+        ],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+      }
+    );
+
+    const answer = explainRes.data.choices[0].message.content.trim();
+    return answer;
   } catch (error) {
     console.error("Error in getAIResponse:", error.response?.data || error.message);
     throw new Error("Failed to fetch AI response.");

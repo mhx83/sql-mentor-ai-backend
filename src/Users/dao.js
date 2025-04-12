@@ -47,16 +47,47 @@ export const findUserByCredentials = async (username, password) => {
 };
 
 // Update user
+// export const updateUser = async (_id, user) => {
+//     const { username, password, firstName, lastName, email, dob, role } = user;
+//     const updateSQL = `
+//         UPDATE users
+//         SET username = ?, password = ?, firstName = ?, lastName = ?, email = ?, dob = ?, role = ?
+//         WHERE _id = ?;
+//     `;
+//     const [result] = await db.query(updateSQL, [username, password, firstName, lastName, email, dob, role, _id]);
+//     return result.affectedRows > 0 ? { _id, ...user } : null;
+// };
+
+const formatDate = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
+    return d.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+};
+
 export const updateUser = async (_id, user) => {
-    const { username, password, firstName, lastName, email, dob, role } = user;
+    const updatedUser = { ...user, dob: formatDate(user.dob) };
+
+    const fields = [];
+    const values = [];
+
+    for (const [key, value] of Object.entries(updatedUser)) {
+        fields.push(`${key} = ?`);
+        values.push(value);
+    }
+
     const updateSQL = `
         UPDATE users
-        SET username = ?, password = ?, firstName = ?, lastName = ?, email = ?, dob = ?, role = ?
+        SET ${fields.join(', ')}
         WHERE _id = ?;
     `;
-    const [result] = await db.query(updateSQL, [username, password, firstName, lastName, email, dob, role, _id]);
-    return result.affectedRows > 0 ? { _id, ...user } : null;
+
+    values.push(_id);
+
+    const [result] = await db.query(updateSQL, values);
+
+    return result.affectedRows > 0 ? { _id, ...updatedUser } : null;
 };
+
 
 // Delete user
 export const deleteUser = async (_id) => {
